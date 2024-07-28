@@ -34,19 +34,6 @@ class FrameBuffer:
     num_bits = self.fb_width*self.fb_height*self.fb_bits_per_pixel
     self.fb = mmap.mmap(self.fbdev, num_bits//8, mmap.MAP_SHARED, mmap.PROT_WRITE|mmap.PROT_READ, offset=0)
 
-    print('set graphics mode')
-
-    try:
-      #https://github.com/OpenRoberta/robertalab-ev3dev/blob/develop/roberta/lab.py
-      # KDSETMODE = 0x4B3A, GRAPHICS = 0x01
-      print('opening tty1')
-      tty_fd = os.open('/dev/tty1', os.O_RDWR)
-      print('setting graphics mode via ioctl')
-      fcntl.ioctl(tty_fd, 0x4B3A, 0x01)
-      os.close(tty_fd)
-    except Exception as e:
-      print('failed to set graphics mode: %s' % e)
-      pass
     print('make buffer')
 
     self.make_buffer()
