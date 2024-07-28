@@ -152,7 +152,6 @@ class ImageWidget(Widget):
     else:
       self.auth = None
 
-    print(config)
     self.load_image()
 
   def refresh(self):
