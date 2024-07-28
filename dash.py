@@ -39,7 +39,9 @@ class FrameBuffer:
     try:
       #https://github.com/OpenRoberta/robertalab-ev3dev/blob/develop/roberta/lab.py
       # KDSETMODE = 0x4B3A, GRAPHICS = 0x01
+      print('opening tty1')
       tty_fd = os.open('/dev/tty1', os.O_RDWR)
+      print('setting graphics mode via ioctl')
       fcntl.ioctl(tty_fd, 0x4B3A, 0x01)
       os.close(tty_fd)
     except Exception as e:
