@@ -9,12 +9,11 @@ import random
 import time
 import fcntl
 from requests.auth import HTTPDigestAuth, HTTPBasicAuth
+import argparse
 
 class FrameBuffer:
   def __init__(self, fb_name):
     self.fb_name = fb_name
-
-    print('init fb')
 
     # get fb resolution
     [fb_w, fb_h] = open("/sys/class/graphics/fb0/virtual_size", "r").read().strip().split(",")
@@ -28,16 +27,12 @@ class FrameBuffer:
     self.fbpath = '/dev/' + self.fb_name
     self.fbdev = os.open(self.fbpath, os.O_RDWR)
 
-    print('mmap fb')
-
     # use mmap to map the framebuffer to memory
     num_bits = self.fb_width*self.fb_height*self.fb_bits_per_pixel
     self.fb = mmap.mmap(self.fbdev, num_bits//8, mmap.MAP_SHARED, mmap.PROT_WRITE|mmap.PROT_READ, offset=0)
 
-    print('make buffer')
-
+    # setup a buffer to draw to
     self.make_buffer()
-    print('done')
 
   def make_buffer(self):
     """
@@ -193,53 +188,56 @@ class ImageWidget(Widget):
       y_off = y * self.width * self.bytes_per_pixel
       fb.write_line(self.x, self.y + y, self.bytes[y_off:y_off + self.width * self.bytes_per_pixel])
 
-config = configparser.RawConfigParser()
-config.read('config.ini')
+if __name__ == '__main__':
+  args = argparse.ArgumentParser()
+  args.add_argument('--config', help='Path to the config file', default='config.ini')
+  args.add_argument('--fb', help='Name of the framebuffer device', default='fb0')
+  args = args.parse_args()
 
-plugins = {
-  'Image': ImageWidget,
-  'CloudWatchMetricImage': CloudWatchImageWidget
-}
+  config = configparser.RawConfigParser()
+  config.read(args.config)  # load the config file
 
-fb = FrameBuffer('fb0')
+  plugins = {
+    'Image': ImageWidget,
+    'CloudWatchMetricImage': CloudWatchImageWidget
+  }
 
-widgets = []
+  fb = FrameBuffer(args.fb)  # create the framebuffer
 
-for section in config.sections():
-  section_name = str(section)
-  if section_name.startswith('widget'):
-    kind = config[section]['type']
-    x = int(eval(config[section]['x'], {'w': fb.fb_width, 'h': fb.fb_height}))
-    y = int(eval(config[section]['y'], {'w': fb.fb_width, 'h': fb.fb_height}))
-    width = int(eval(config[section]['w'], {'w': fb.fb_width, 'h': fb.fb_height}))
-    height = int(eval(config[section]['h'], {'w': fb.fb_width, 'h': fb.fb_height}))
+  widgets = []
 
-    raw_config = {k: v for (k,v) in config[section].items()}
+  # initialize widgets
+  for section in config.sections():
+    section_name = str(section)
+    if section_name.startswith('widget'):
+      kind = config[section]['type']
+      x = int(eval(config[section]['x'], {'w': fb.fb_width, 'h': fb.fb_height}))
+      y = int(eval(config[section]['y'], {'w': fb.fb_width, 'h': fb.fb_height}))
+      width = int(eval(config[section]['w'], {'w': fb.fb_width, 'h': fb.fb_height}))
+      height = int(eval(config[section]['h'], {'w': fb.fb_width, 'h': fb.fb_height}))
 
-    print(f'Creating widget of type {kind} at ({x}, {y}) with size ({width}, {height})')
+      raw_config = {k: v for (k,v) in config[section].items()}
 
-    if kind in plugins:
-      widget = plugins[kind](x, y, width, height, raw_config)
-      widgets.append(widget)
-    else:
-      print(f'Unknown widget type: {kind}')
-      exit(1)
+      print(f'Creating widget of type {kind} at ({x}, {y}) with size ({width}, {height})')
 
+      if kind in plugins:
+        widget = plugins[kind](x, y, width, height, raw_config)
+        widgets.append(widget)
+      else:
+        print(f'Unknown widget type: {kind}')
+        exit(1)
 
-# for x in range(0, 255):
-#   for y in range(0, 255):
-#     fb.set_pixel(255 + x, y, random.randrange(0, 255), random.randrange(0, 255), random.randrange(0, 255), 255)
+  while True:
+    # write widgets into framebuffer
+    for widget in widgets:
+      widget.write_into_fb(fb)
 
-# img = ImageWidget(0, 0, 256, 256, 'image.jpg')
-# img.write_into_fb(fb)
+    # copy our virtual buffer with the real one
+    fb.swap_buffers()
 
-while True:
-  for widget in widgets:
-    widget.write_into_fb(fb)
+    # wait for a bit
+    time.sleep(60)
 
-  print('swap')
-  fb.swap_buffers()
-  time.sleep(60)
-  print('refresh widgets')
-  for widget in widgets:
-    widget.refresh()
+    # trigger a widget refresh
+    for widget in widgets:
+      widget.refresh()
