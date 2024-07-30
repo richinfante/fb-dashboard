@@ -10,7 +10,7 @@ from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 import argparse
 
 def eval_expr(expr, variables):
-  eval(expr, variables)
+  return eval(expr, {'__builtins__': None, **variables})
 
 def parse_color(color: str) -> tuple:
   """
