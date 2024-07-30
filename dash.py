@@ -9,8 +9,21 @@ import time
 from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 import argparse
 import json
+import quickjs
+
+def eval_expr(expr, variables):
+  """
+    Execute a javascript expression with the given variables
+  """
+  context = quickjs.Context()
+  for (k, v) in variables.items():
+    context.set(k, v)
+  return context.eval(expr)
 
 def parse_color(color: str) -> tuple:
+  """
+    Parse a color string into an RGB tuple
+  """
   if color.startswith('#'):
     if len(color) == 4:
       r = int(color[1:2], 16) * 17
@@ -126,7 +139,7 @@ class Widget:
 class CloudWatchImageWidget(Widget):
   def __init__(self, x, y, width, height, config):
     super().__init__(x, y, width, height)
-    self.widget = json.dumps(eval(config['widget'], {'w': self.width, 'h': self.height}))
+    self.widget = eval_expr(config['widget'], {'w': self.width, 'h': self.height})
     self.load_image()
 
   def refresh(self):
@@ -171,7 +184,7 @@ class TextWidget(Widget):
   def __init__(self, x, y, width, height, config):
     super().__init__(x, y, width, height)
     self.text = config['text']
-    self.size = int(eval(config['size'], {'w': width, 'h': height}))
+    self.size = int(eval_expr(config['size'], {'w': width, 'h': height}))
     self.bg_color = parse_color(config.get('bg_color', '#000000'))
     self.fg_color = parse_color(config.get('fg_color', '#FFFFFF'))
     self.refresh()
@@ -284,10 +297,10 @@ if __name__ == '__main__':
     section_name = str(section)
     if section_name.startswith('widget'):
       kind = config[section]['type']
-      x = int(eval(config[section]['x'], {'w': fb.fb_width, 'h': fb.fb_height}))
-      y = int(eval(config[section]['y'], {'w': fb.fb_width, 'h': fb.fb_height}))
-      width = int(eval(config[section]['w'], {'w': fb.fb_width, 'h': fb.fb_height}))
-      height = int(eval(config[section]['h'], {'w': fb.fb_width, 'h': fb.fb_height}))
+      x = int(eval_expr(config[section]['x'], {'w': fb.fb_width, 'h': fb.fb_height}))
+      y = int(eval_expr(config[section]['y'], {'w': fb.fb_width, 'h': fb.fb_height}))
+      width = int(eval_expr(config[section]['w'], {'w': fb.fb_width, 'h': fb.fb_height}))
+      height = int(eval_expr(config[section]['h'], {'w': fb.fb_width, 'h': fb.fb_height}))
 
       raw_config = {k: v for (k,v) in config[section].items()}
 
