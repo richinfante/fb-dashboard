@@ -27,6 +27,29 @@ type = CloudWatchMetricImage
 widget = {"metrics": [[ "AWS/CloudFront", "Requests", "Region", "Global", "DistributionId", "YOUR_DISTRIBUTION_ID_HERE" ]],"view": "timeSeries","stacked": false,"stat": "Sum","period": 900, "width": w*2, "height": h*2,"start": "-PT72H", "end": "P0D", "timezone": "-0400"}
 ```
 
+## Config Options By Type
+- all:
+  - `x` - x position on screen
+  - `y` - y position on screen
+  - `w` - width of the widget
+  - `h` - height of the widget
+- `CloudWatchMetricImage`
+  - `widget` - a JSON string from CloudWatch's metric image export function
+  - `aws_profile` - (optional) AWS profile name
+  - `aws_region` - (optional) AWS region name
+- `Image`
+  - `path` - local path, http://, or https:// link to the image
+  - `auth_type` - (optional) `basic` (default), or `digest`. Only used if username and password are set.
+  - `username` - (optional) auth username
+  - `password` - (optional) auth password
+- `Text` (experimental)
+  - `text` - text to display
+  - `size` - font size
+  - `bg_color` - bg color, in hex or `rgb()` format.
+  - `fg_color` - bg color, in hex or `rgb()` format.
+
+
+
 ## Run at boot
 
 On raspberry pi, `/etc/rc.local` is a pretty easy place to run scripts at boot. Add this line before `exit 0`:
