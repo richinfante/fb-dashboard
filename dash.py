@@ -8,9 +8,10 @@ from PIL import Image, ImageDraw, ImageFont
 import time
 from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 import argparse
+import json
 
 def eval_expr(expr, variables):
-  return eval(expr, {**variables})
+  return eval(expr, {**variables, 'false': False, 'true': True})
 
 def parse_color(color: str) -> tuple:
   """
@@ -132,6 +133,11 @@ class CloudWatchImageWidget(Widget):
   def __init__(self, x, y, width, height, config):
     super().__init__(x, y, width, height)
     self.widget = eval_expr(config['widget'], {'w': self.width, 'h': self.height})
+    if isinstance(self.widget, dict):
+      self.widget = json.dumps(self.widget)
+
+    self.aws_profile = config.get('aws_profile', None)
+    self.aws_region = config.get('aws_region', None)
     self.load_image()
 
   def refresh(self):
@@ -144,7 +150,13 @@ class CloudWatchImageWidget(Widget):
     """
       Load the image from cloudwatch
     """
-    cloudwatch = boto3.client('cloudwatch')
+    if self.aws_profile or self.aws_region:
+      print(f'Using profile {self.aws_profile}')
+      boto3_session = boto3.session.Session(profile_name=self.aws_profile, region_name=self.aws_region)
+      cloudwatch = boto3_session.client('cloudwatch')
+    else:
+      cloudwatch = boto3.client('cloudwatch')
+
     response = cloudwatch.get_metric_widget_image(
       MetricWidget=self.widget,
       OutputFormat='png'
