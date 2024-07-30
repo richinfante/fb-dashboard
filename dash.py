@@ -8,17 +8,9 @@ from PIL import Image, ImageDraw, ImageFont
 import time
 from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 import argparse
-import json
-import quickjs
 
 def eval_expr(expr, variables):
-  """
-    Execute a javascript expression with the given variables
-  """
-  context = quickjs.Context()
-  for (k, v) in variables.items():
-    context.set(k, v)
-  return context.eval(expr)
+  eval(expr, variables)
 
 def parse_color(color: str) -> tuple:
   """
