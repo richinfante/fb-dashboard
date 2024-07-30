@@ -9,6 +9,7 @@ import time
 from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 import argparse
 import json
+from datetime import datetime as dt
 
 def eval_expr(expr, variables):
   return eval(expr, {**variables, 'false': False, 'true': True})
@@ -331,3 +332,5 @@ if __name__ == '__main__':
     # trigger a widget refresh
     for widget in widgets:
       widget.refresh()
+
+    print('%s: refreshing widgets' % (str(dt.now())))
