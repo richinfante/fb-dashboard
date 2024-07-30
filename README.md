@@ -16,7 +16,8 @@ python3 dash.py
 ```
 
 ## Basic config with Cloudwatch Dashboards
-Config file, may need
+Config file, may need to customize the widget to the one you want to display. the `widget` is also eval()'ed like the x, y, w, and h variables, so you can dynamically specify the width and height of the image.
+
 ```
 [widget]
 x = 0
@@ -24,7 +25,7 @@ y = 0
 w = w
 h = h
 type = CloudWatchMetricImage
-widget = {"metrics": [[ "AWS/CloudFront", "Requests", "Region", "Global", "DistributionId", "YOUR_DISTRIBUTION_ID_HERE" ]],"view": "timeSeries","stacked": false,"stat": "Sum","period": 900, "width": w*2, "height": h*2,"start": "-PT72H", "end": "P0D", "timezone": "-0400"}
+widget = {"metrics": [[ "AWS/CloudFront", "Requests", "Region", "Global", "DistributionId", "YOUR_DISTRIBUTION_ID_HERE" ]],"view": "timeSeries","stacked": false,"stat": "Sum","period": 900, "width": w, "height": h,"start": "-PT72H", "end": "P0D", "timezone": "-0400"}
 ```
 
 ## Config Options By Type
@@ -74,3 +75,6 @@ sudo -u rich python3 /home/rich/aws-dash/dash.py
 # writes to `framebuffer.png` in current dir
 python3 dash.py --no-framebuffer
 ```
+
+## Security
+This isn't designed to be used with untrusted data. The config file eval()'s several sections to allow for dynamic configuration. This is by design, so I do not recommend running this as root with untrusted images. Ensure you have the latest versions of the dependencies so they have the latest security patches.
