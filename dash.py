@@ -5,11 +5,10 @@ import mmap
 import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-import random
 import time
-import fcntl
 from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 import argparse
+import json
 
 def parse_color(color: str) -> tuple:
   if color.startswith('#'):
@@ -127,7 +126,7 @@ class Widget:
 class CloudWatchImageWidget(Widget):
   def __init__(self, x, y, width, height, config):
     super().__init__(x, y, width, height)
-    self.widget = config['widget']
+    self.widget = json.dumps(eval(config['widget'], {'w': self.width, 'h': self.height}))
     self.load_image()
 
   def refresh(self):
