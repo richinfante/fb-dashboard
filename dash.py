@@ -4,32 +4,35 @@ import requests
 import mmap
 import os
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import random
 import time
 import fcntl
 from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 import argparse
 
-class FrameBuffer:
-  def __init__(self, fb_name):
-    self.fb_name = fb_name
+def parse_color(color: str) -> tuple:
+  if color.startswith('#'):
+    if len(color) == 4:
+      r = int(color[1:2], 16) * 17
+      g = int(color[2:3], 16) * 17
+      b = int(color[3:4], 16) * 17
+    else:
+      r = int(color[1:3], 16)
+      g = int(color[3:5], 16)
+      b = int(color[5:7], 16)
 
-    # get fb resolution
-    [fb_w, fb_h] = open("/sys/class/graphics/fb0/virtual_size", "r").read().strip().split(",")
-    self.fb_width = int(fb_w)
-    self.fb_height = int(fb_h)
+    return (r, g, b)
 
-    # get bits per pixel
-    self.fb_bits_per_pixel = int(open("/sys/class/graphics/fb0/bits_per_pixel", "r").read())
+  elif color.startswith('rgb'):
+    return tuple(map(int, color[4:-1].split(',')))
 
-    # save the screen resolution
-    self.fbpath = '/dev/' + self.fb_name
-    self.fbdev = os.open(self.fbpath, os.O_RDWR)
 
-    # use mmap to map the framebuffer to memory
-    num_bits = self.fb_width*self.fb_height*self.fb_bits_per_pixel
-    self.fb = mmap.mmap(self.fbdev, num_bits//8, mmap.MAP_SHARED, mmap.PROT_WRITE|mmap.PROT_READ, offset=0)
+class FrameBufferBase:
+  def __init__(self, width, height, bits_per_pixel=32):
+    self.fb_width = width
+    self.fb_height = height
+    self.fb_bits_per_pixel = bits_per_pixel
 
     # setup a buffer to draw to
     self.make_buffer()
@@ -66,6 +69,45 @@ class FrameBuffer:
     self.virtual_buffer.seek((y * self.fb_width + x) * self.fb_bits_per_pixel // 8)
     self.virtual_buffer.write(bytes)
 
+  def export_png(self, path):
+    """
+      Export the virtual buffer as a PNG file
+      Mainly for debugging purposes, running without a framebuffer on a non-linux system or in a container
+    """
+    img = Image.frombytes('RGBA', (self.fb_width, self.fb_height), self.virtual_buffer.getvalue(), 'raw', 'BGRA')
+    img.save(path, 'PNG')
+
+  def swap_buffers(self):
+    """
+      'swap' the virtual buffer with the actual framebuffer
+
+      bulk write the virtual buffer to the framebuffer, so that the screen updates in one go
+    """
+    self.export_png('framebuffer.png')
+
+class LinuxFrameBuffer(FrameBufferBase):
+  def __init__(self, fb_name):
+    self.fb_name = fb_name
+
+    # get fb resolution
+    [fb_w, fb_h] = open("/sys/class/graphics/fb0/virtual_size", "r").read().strip().split(",")
+    self.fb_width = int(fb_w)
+    self.fb_height = int(fb_h)
+
+    # get bits per pixel
+    self.fb_bits_per_pixel = int(open("/sys/class/graphics/fb0/bits_per_pixel", "r").read())
+
+    # save the screen resolution
+    self.fbpath = '/dev/' + self.fb_name
+    self.fbdev = os.open(self.fbpath, os.O_RDWR)
+
+    # use mmap to map the framebuffer to memory
+    num_bits = self.fb_width*self.fb_height*self.fb_bits_per_pixel
+    self.fb = mmap.mmap(self.fbdev, num_bits//8, mmap.MAP_SHARED, mmap.PROT_WRITE|mmap.PROT_READ, offset=0)
+
+    # setup a buffer to draw to
+    self.make_buffer()
+
   def swap_buffers(self):
     """
       'swap' the virtual buffer with the actual framebuffer
@@ -74,8 +116,6 @@ class FrameBuffer:
     """
     self.fb.seek(0)
     self.fb.write(self.virtual_buffer.getvalue())
-
-
 
 class Widget:
   def __init__(self, x, y, width, height):
@@ -118,6 +158,35 @@ class CloudWatchImageWidget(Widget):
 
     # convert to BGRA format
     self.bytes = self.image.tobytes('raw', 'BGRA')
+    self.bytes_per_pixel = 4
+
+  def write_into_fb(self, fb):
+    """
+      Write the image into the framebuffer
+    """
+    for y in range(self.height):
+      y_off = y * self.width * self.bytes_per_pixel
+      fb.write_line(self.x, self.y + y, self.bytes[y_off:y_off + self.width * self.bytes_per_pixel])
+
+class TextWidget(Widget):
+  def __init__(self, x, y, width, height, config):
+    super().__init__(x, y, width, height)
+    self.text = config['text']
+    self.size = int(eval(config['size'], {'w': width, 'h': height}))
+    self.bg_color = parse_color(config.get('bg_color', '#000000'))
+    self.fg_color = parse_color(config.get('fg_color', '#FFFFFF'))
+    self.refresh()
+
+  def refresh(self):
+    """
+      Write the text into the framebuffer
+    """
+    image = Image.new("RGBA", (self.width * 2, self.height * 2), self.bg_color)
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.load_default(self.size)
+    draw.text((0, 0), self.text, fill=self.fg_color, font=font)
+    img_resized = image.resize((self.width,self.height), Image.Resampling.LANCZOS)
+    self.bytes = img_resized.tobytes('raw', 'BGRA')
     self.bytes_per_pixel = 4
 
   def write_into_fb(self, fb):
@@ -192,6 +261,7 @@ if __name__ == '__main__':
   args = argparse.ArgumentParser()
   args.add_argument('--config', help='Path to the config file', default='config.ini')
   args.add_argument('--fb', help='Name of the framebuffer device', default='fb0')
+  args.add_argument('--no-framebuffer', help='Run without a framebuffer, writing to png', action='store_true')
   args = args.parse_args()
 
   config = configparser.RawConfigParser()
@@ -199,10 +269,14 @@ if __name__ == '__main__':
 
   plugins = {
     'Image': ImageWidget,
+    'Text': TextWidget,
     'CloudWatchMetricImage': CloudWatchImageWidget
   }
 
-  fb = FrameBuffer(args.fb)  # create the framebuffer
+  if args.no_framebuffer:
+    fb = FrameBufferBase(1080, 720)
+  else:
+    fb = LinuxFrameBuffer(args.fb)  # create the framebuffer
 
   widgets = []
 
