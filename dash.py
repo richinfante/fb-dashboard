@@ -151,7 +151,6 @@ class CloudWatchImageWidget(Widget):
       Load the image from cloudwatch
     """
     if self.aws_profile or self.aws_region:
-      print(f'Using profile {self.aws_profile}')
       boto3_session = boto3.session.Session(profile_name=self.aws_profile, region_name=self.aws_region)
       cloudwatch = boto3_session.client('cloudwatch')
     else:
