@@ -295,6 +295,7 @@ if __name__ == '__main__':
     fb = LinuxFrameBuffer(args.fb)  # create the framebuffer
 
   widgets = []
+  refresh_interval = 60
 
   # initialize widgets
   for section in config.sections():
@@ -326,7 +327,7 @@ if __name__ == '__main__':
     fb.swap_buffers()
 
     # wait for a bit
-    time.sleep(60)
+    time.sleep(refresh_interval)
 
     # trigger a widget refresh
     for widget in widgets:
