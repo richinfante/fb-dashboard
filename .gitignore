@@ -2,3 +2,4 @@ config.ini
 framebuffer.png
 env/
 testing/
+.DS_Store
