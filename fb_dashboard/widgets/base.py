@@ -19,7 +19,7 @@ class WidgetBase:
     """
       Refresh the widget
     """
-    print('Refreshing widget %s' % self.__class__.__name__)
+    # print('Refreshing widget %s' % self.__class__.__name__)
     self.last_refresh = dt.now()
 
   def refresh_if_needed(self):
