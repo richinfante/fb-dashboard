@@ -40,17 +40,29 @@ For usage examples, see `example.config.ini` in the repo.
   - `widget` - a JSON string from CloudWatch's metric image export function
   - `aws_profile` - (optional) AWS profile name
   - `aws_region` - (optional) AWS region name
+  - `invert_image` - (optional) invert metric image, to obtain dark mode
 - `Image`
   - `path` - local path, http://, or https:// link to the image
   - `auth_type` - (optional) `basic` (default), or `digest`. Only used if username and password are set.
   - `username` - (optional) auth username
   - `password` - (optional) auth password
+  - `invert_image` - (optional) invert image
 - `Clock`
   - `clock_format` - (optional) clock format string, e.g. `%H:%M:%S` or `%I:%M %p`
   - `date_format` - (optional) date format string, e.g. `%Y-%m-%d` or `%A, %B %d, %Y`
   - `timezone` - (optional) e.g. America/New_York
   - `bg_color` - bg color, in hex or `rgb()` format.
   - `fg_color` - bg color, in hex or `rgb()` format.
+- `StockMarketCandlestick` - stock market data from Yahoo finance
+  - `symbol` - required, the symbol. e.g. `AAPL`.
+  - `plot_style` - (optional) [a mpf theme name](https://github.com/matplotlib/mplfinance/blob/master/examples/styles.ipynb), default nightclouds
+  - `up_color` - (optional) up candlestick color, default `#00FF00`
+  - `down_color` - (optional) down candlestick color, default `#FF0000`
+  - `time_period` - (optional) time period to show. default `1mo`
+    - allowed values: '1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max'
+  - `interval` = (optional) time interval for each candlestick. default:  `1d`
+    - allowed values: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo
+
 - `Text` (experimental)
   - `text` - text to display
   - `size` - font size

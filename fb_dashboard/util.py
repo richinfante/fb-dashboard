@@ -1,8 +1,14 @@
+from datetime import datetime as dt, timedelta
+
+
 def eval_expr(expr, variables):
     """
     Evaluate an expression with variables
     """
-    return eval(expr, {**variables, "false": False, "true": True})
+    return eval(
+        expr,
+        {**variables, "false": False, "true": True, "dt": dt, "timedelta": timedelta},
+    )
 
 
 def parse_color(color: str) -> tuple:

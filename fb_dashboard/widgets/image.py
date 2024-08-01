@@ -1,6 +1,7 @@
 import requests
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageOps
+from ..util import eval_expr
 from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 from .base import WidgetBase
 
@@ -9,6 +10,7 @@ class ImageWidget(WidgetBase):
     def __init__(self, x, y, width, height, config):
         super().__init__(x, y, width, height, config)
         self.path = config["path"]
+        self.invert_image = eval_expr(config.get("invert", "False"), {})
         self.bytes = None
 
         # allow for basic auth or digest auth to be used for password protected images
@@ -46,6 +48,9 @@ class ImageWidget(WidgetBase):
             self.raw_image = Image.open(self.path)
 
         self.image = self.raw_image.resize((self.width, self.height))
+
+        if self.invert_image:
+            self.image = ImageOps.invert(self.image)
 
         # ensure the image has an alpha channel
         if not self.image.has_transparency_data:

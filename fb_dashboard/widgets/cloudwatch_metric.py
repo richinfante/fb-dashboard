@@ -1,6 +1,6 @@
 import requests
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageOps
 from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 from .base import WidgetBase
 import boto3
@@ -17,6 +17,7 @@ class CloudWatchImageWidget(WidgetBase):
 
         self.aws_profile = config.get("aws_profile", None)
         self.aws_region = config.get("aws_region", None)
+        self.invert_image = eval_expr(config.get("invert", "False"), {})
         self.bytes = None
 
     def refresh(self):
@@ -45,6 +46,9 @@ class CloudWatchImageWidget(WidgetBase):
         raw_bytes = response["MetricWidgetImage"]
         self.raw_image = Image.open(BytesIO(raw_bytes))
         self.image = self.raw_image.resize((self.width, self.height))
+
+        if self.invert_image:
+            self.image = ImageOps.invert(self.image)
 
         # ensure the image has an alpha channel
         if not self.image.has_transparency_data:

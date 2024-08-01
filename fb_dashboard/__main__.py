@@ -9,7 +9,7 @@ from .widgets.text import TextWidget
 from .widgets.cloudwatch_metric import CloudWatchImageWidget
 from .widgets.clock import ClockWidget
 from .util import eval_expr
-from threading import Thread
+from .widgets.stock_candlestick import YFCandlestickWidget
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
@@ -32,6 +32,7 @@ if __name__ == "__main__":
         "Image": ImageWidget,
         "Text": TextWidget,
         "Clock": ClockWidget,
+        "StockMarketCandlestick": YFCandlestickWidget,
         "CloudWatchMetricImage": CloudWatchImageWidget,
     }
 

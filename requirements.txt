@@ -2,3 +2,6 @@ boto3
 pillow
 requests
 pytz
+pandas
+matplotlib
+mplfinance
