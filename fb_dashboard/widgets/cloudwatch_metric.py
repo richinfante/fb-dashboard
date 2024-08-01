@@ -16,13 +16,14 @@ class CloudWatchImageWidget(WidgetBase):
 
     self.aws_profile = config.get('aws_profile', None)
     self.aws_region = config.get('aws_region', None)
+    self.bytes = None
 
   def refresh(self):
-    super().refresh()
     """
       Refresh the image from cloudwatch
     """
     self.load_image()
+    super().refresh()
 
   def load_image(self):
     """
@@ -57,6 +58,9 @@ class CloudWatchImageWidget(WidgetBase):
     """
       Write the image into the framebuffer
     """
+    if not self.bytes:
+      return
+
     for y in range(self.height):
       y_off = y * self.width * self.bytes_per_pixel
       fb.write_line(self.x, self.y + y, self.bytes[y_off:y_off + self.width * self.bytes_per_pixel])

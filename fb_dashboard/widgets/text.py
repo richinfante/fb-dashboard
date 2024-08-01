@@ -11,7 +11,6 @@ class TextWidget(WidgetBase):
     self.fg_color = parse_color(config.get('fg_color', '#FFFFFF'))
 
   def refresh(self):
-    super().refresh()
     """
       Write the text into the framebuffer
     """
@@ -22,11 +21,15 @@ class TextWidget(WidgetBase):
     img_resized = image.resize((self.width,self.height), Image.Resampling.LANCZOS)
     self.bytes = img_resized.tobytes('raw', 'BGRA')
     self.bytes_per_pixel = 4
+    super().refresh()
 
   def write_into_fb(self, fb):
     """
       Write the image into the framebuffer
     """
+    if not self.has_refreshed:
+      return
+
     for y in range(self.height):
       y_off = y * self.width * self.bytes_per_pixel
       fb.write_line(self.x, self.y + y, self.bytes[y_off:y_off + self.width * self.bytes_per_pixel])

@@ -8,6 +8,7 @@ from .widgets.text import TextWidget
 from .widgets.cloudwatch_metric import CloudWatchImageWidget
 from .widgets.clock import ClockWidget
 from .util import eval_expr
+from threading import Thread
 
 if __name__ == '__main__':
   args = argparse.ArgumentParser()
@@ -59,7 +60,7 @@ if __name__ == '__main__':
     # print('%s: refreshing widgets' % (str(dt.now())))
     now = dt.now()
     for widget in widgets:
-      widget.refresh_if_needed()
+      widget.refresh_in_bg_if_needed()
     # print('%s: done refreshing widgets (elapsed %s)' % (str(dt.now()), round((dt.now() - now).total_seconds(), 2)))
 
     # write widgets into framebuffer

@@ -8,6 +8,7 @@ class ImageWidget(WidgetBase):
   def __init__(self, x, y, width, height, config):
     super().__init__(x, y, width, height, config)
     self.path = config['path']
+    self.bytes = None
 
     # allow for basic auth or digest auth to be used for password protected images
     if config.get('username') and config.get('password'):
@@ -23,15 +24,15 @@ class ImageWidget(WidgetBase):
       self.auth = None
 
   def refresh(self):
-    super().refresh()
     self.load_image()
+    super().refresh()
 
   def load_image(self):
     """
       Load the static image from the path, or download it from the internet
     """
     if self.path.startswith('http') or self.path.startswith('https'):
-      req = requests.get(self.path, auth=self.auth)
+      req = requests.get(self.path, auth=self.auth, timeout=10)
 
       if not req.ok:
         print(f'Failed to download image from {self.path}: {req.status_code} ({req.reason})')
@@ -57,6 +58,9 @@ class ImageWidget(WidgetBase):
     """
       Write the image into the framebuffer
     """
+    if not self.has_refreshed:
+      return
+
     for y in range(self.height):
       y_off = y * self.width * self.bytes_per_pixel
       fb.write_line(self.x, self.y + y, self.bytes[y_off:y_off + self.width * self.bytes_per_pixel])
