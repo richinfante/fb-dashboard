@@ -2,6 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 from .base import WidgetBase
 from ..util import eval_expr, parse_color
 from datetime import datetime as dt
+import pytz
 
 class ClockWidget(WidgetBase):
   def __init__(self, x, y, width, height, config):
@@ -11,6 +12,7 @@ class ClockWidget(WidgetBase):
     self.fg_color = parse_color(config.get('fg_color', '#FFFFFF'))
     self.clock_format = config.get('clock_format', '%H:%M:%S')
     self.date_format = config.get('date_format', '%Y-%m-%d')
+    self.timezone = config.get('timezone')
     self.refresh_interval = 0.25
 
     font_size = 1
@@ -33,10 +35,16 @@ class ClockWidget(WidgetBase):
     image = Image.new("RGBA", (self.width, self.height), self.bg_color)
     draw = ImageDraw.Draw(image)
     font = ImageFont.load_default(self.size)
-    text = dt.now().strftime(self.clock_format)
 
     date_font = ImageFont.load_default(0.25 * self.size)
-    date_text = dt.now().strftime(self.date_format)
+
+    if not self.timezone:
+      text = dt.now().strftime(self.clock_format)
+      date_text = dt.now().strftime(self.date_format)
+    else:
+      tz = pytz.timezone(self.timezone)
+      text = dt.now(tz).strftime(self.clock_format)
+      date_text = dt.now(tz).strftime(self.date_format)
 
     # text_length_pixels = font.getlength(text)
     # print(self.width, text_length_pixels)
