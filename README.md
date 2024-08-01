@@ -56,7 +56,7 @@ For usage examples, see `example.config.ini` in the repo.
   - `fg_color` - bg color, in hex or `rgb()` format.
 - `StockMarketCandlestick` - stock market data from Yahoo finance
   - `symbol` - required, the symbol. e.g. `AAPL`.
-  - `plot_style` - (optional) [a mpf theme name](https://github.com/matplotlib/mplfinance/blob/master/examples/styles.ipynb), default nightclouds
+  - `plot_style` - (optional) [a mplfinance theme name](https://github.com/matplotlib/mplfinance/blob/master/examples/styles.ipynb), default nightclouds
   - `up_color` - (optional) up candlestick color, default `#00FF00`
   - `down_color` - (optional) down candlestick color, default `#FF0000`
   - `time_period` - (optional) time period to show. default `1mo`
