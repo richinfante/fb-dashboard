@@ -12,7 +12,7 @@ pip3 install -r requirements.txt
 sudo python3 gfxmode.py /dev/tty1 graphics
 
 # run the dashboard
-python3 dash.py
+python3 -m fb_dashboard
 ```
 
 ## Basic config with Cloudwatch Dashboards
@@ -61,19 +61,19 @@ You will likely need to change the username, path to the cloned repo, and any vi
 python3 /home/rich/aws-dash/gfxmode.py /dev/tty1 1
 
 # if using a virtualenv
-sudo -u rich bash -c 'cd /home/rich/aws-dash && source env/bin/activate && python3 dash.py'
+sudo -u rich bash -c 'cd /home/rich/fb-dashboard && source env/bin/activate && python3 -m fb_dashboard'
 ```
 
 If not using a virtual environment you replace the last line above with this:
 ```bash
 # if not using a virtualenv
-sudo -u rich python3 /home/rich/aws-dash/dash.py
+sudo -u rich bash -c 'python3 cd /home/rich/fb-dashboard && python3 -m fb_dashboard'
 ```
 
 ## Debugging on non-linux system
 ```
 # writes to `framebuffer.png` in current dir
-python3 dash.py --no-framebuffer
+python3 -m fb_dashboard --no-framebuffer
 ```
 
 ## Security

@@ -3,3 +3,4 @@ framebuffer.png
 env/
 testing/
 .DS_Store
+__pycache__/
