@@ -3,13 +3,7 @@ from io import BytesIO
 from PIL import Image
 from .base import WidgetBase
 from io import BytesIO
-import matplotlib
-import yfinance as yf
 from datetime import datetime as dt, timedelta
-import mplfinance as mpf
-
-# use agg backend, so we can run in a headless environment
-matplotlib.use("agg")
 
 class YFCandlestickWidget(WidgetBase):
     def __init__(self, x, y, width, height, config):
@@ -37,6 +31,13 @@ class YFCandlestickWidget(WidgetBase):
         super().refresh()
 
     def render_data(self):
+        import matplotlib
+        import yfinance as yf
+        import mplfinance as mpf
+
+        # use agg backend, so we can run in a headless environment
+        matplotlib.use("agg")
+
         # get yf data
         data = yf.download(tickers=self.symbol, period=self.time_period, interval=self.interval)
 
