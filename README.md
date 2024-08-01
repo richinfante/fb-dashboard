@@ -29,6 +29,8 @@ widget = {"metrics": [[ "AWS/CloudFront", "Requests", "Region", "Global", "Distr
 ```
 
 ## Config Options By Type
+For usage examples, see `example.config.ini` in the repo.
+
 - all:
   - `x` - x position on screen
   - `y` - y position on screen
@@ -54,8 +56,6 @@ widget = {"metrics": [[ "AWS/CloudFront", "Requests", "Region", "Global", "Distr
   - `size` - font size
   - `bg_color` - bg color, in hex or `rgb()` format.
   - `fg_color` - bg color, in hex or `rgb()` format.
-
-
 
 ## Run at boot
 
@@ -84,3 +84,7 @@ python3 -m fb_dashboard --no-framebuffer
 
 ## Security
 This isn't designed to be used with untrusted data. The config file eval()'s several sections to allow for dynamic configuration. This is by design, so I do not recommend running this as root with untrusted images. Ensure you have the latest versions of the dependencies so they have the latest security patches.
+
+## Development
+
+This project uses [black](https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html) for formatting.
