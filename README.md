@@ -43,6 +43,12 @@ widget = {"metrics": [[ "AWS/CloudFront", "Requests", "Region", "Global", "Distr
   - `auth_type` - (optional) `basic` (default), or `digest`. Only used if username and password are set.
   - `username` - (optional) auth username
   - `password` - (optional) auth password
+- `Clock`
+  - `clock_format` - (optional) clock format string, e.g. `%H:%M:%S` or `%I:%M %p`
+  - `date_format` - (optional) date format string, e.g. `%Y-%m-%d` or `%A, %B %d, %Y`
+  - `timezone` - (optional) e.g. America/New_York
+  - `bg_color` - bg color, in hex or `rgb()` format.
+  - `fg_color` - bg color, in hex or `rgb()` format.
 - `Text` (experimental)
   - `text` - text to display
   - `size` - font size

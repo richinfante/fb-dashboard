@@ -45,12 +45,6 @@ class ClockWidget(WidgetBase):
       text = dt.now(tz).strftime(self.clock_format)
       date_text = dt.now(tz).strftime(self.date_format)
 
-    # text_length_pixels = font.getlength(text)
-    # print(self.width, text_length_pixels)
-
-    # x = (self.width - text_length_pixels)//2
-    # y = (self.height - self.size) // 2
-
     # print(x, y, self.size)
     draw.text((self.width // 2, self.height // 2), text, fill=self.fg_color, font=font, anchor='mm')
     draw.text((self.width // 2, self.height // 2 + self.size / 2 + 0.25 * self.size), date_text, fill=self.fg_color, font=date_font, anchor='mm')

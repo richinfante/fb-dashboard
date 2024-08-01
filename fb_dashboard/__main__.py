@@ -1,6 +1,7 @@
 import configparser
 import time
 import argparse
+import sys
 from datetime import datetime as dt
 from .framebuffer import FrameBufferBase, LinuxFrameBuffer
 from .widgets.image import ImageWidget
@@ -15,6 +16,7 @@ if __name__ == '__main__':
   args.add_argument('--config', help='Path to the config file', default='config.ini')
   args.add_argument('--fb', help='Name of the framebuffer device', default='fb0')
   args.add_argument('--no-framebuffer', help='Run without a framebuffer, writing to png', action='store_true')
+  args.add_argument('--exit', help='Exit after writing the framebuffer', action='store_true')
   args = args.parse_args()
 
   config = configparser.RawConfigParser()
@@ -73,6 +75,18 @@ if __name__ == '__main__':
     # copy our virtual buffer with the real one
     fb.swap_buffers()
     fb.make_buffer()
+
+    # for testing, exit after all widgets have refreshed for the first time
+    # --exit flag must be set to use this
+    if args.exit:
+      all_rendered = True
+      for widget in widgets:
+        if not widget.has_refreshed:
+          all_rendered = False
+          break
+
+      if all_rendered:
+        sys.exit(0)
 
     # wait for a bit
     time.sleep(0.25)
