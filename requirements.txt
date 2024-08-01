@@ -5,3 +5,4 @@ pytz
 pandas
 matplotlib
 mplfinance
+yfinance
