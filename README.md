@@ -36,6 +36,7 @@ For usage examples, see `example.config.ini` in the repo.
   - `y` - y position on screen
   - `w` - width of the widget
   - `h` - height of the widget
+  - `refresh_interval` - minimum time (in seconds), between widget refreshes
 - `CloudWatchMetricImage`
   - `widget` - a JSON string from CloudWatch's metric image export function
   - `aws_profile` - (optional) AWS profile name
