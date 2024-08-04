@@ -43,7 +43,7 @@ class SatelliteWidget(WidgetBase):
 
         dirname = os.path.dirname(__file__)
         filename = os.path.join(dirname, "./data/world.geo.json")
-        self.refresh_interval = 5
+        self.refresh_interval = 60
         self.last_tle_refresh = None
 
         geojson = open(filename, "r")
