@@ -3,13 +3,14 @@ import time
 import argparse
 import sys
 from datetime import datetime as dt
+from .util import eval_expr
 from .framebuffer import FrameBufferBase, LinuxFrameBuffer
 from .widgets.image import ImageWidget
 from .widgets.text import TextWidget
 from .widgets.cloudwatch_metric import CloudWatchImageWidget
 from .widgets.clock import ClockWidget
-from .util import eval_expr
 from .widgets.stock_candlestick import YFCandlestickWidget
+from .widgets.satellite import SatelliteWidget
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
@@ -34,6 +35,7 @@ if __name__ == "__main__":
         "Clock": ClockWidget,
         "StockMarketCandlestick": YFCandlestickWidget,
         "CloudWatchMetricImage": CloudWatchImageWidget,
+        "SatelliteMap": SatelliteWidget,
     }
 
     if args.no_framebuffer:

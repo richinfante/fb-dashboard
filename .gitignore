@@ -4,3 +4,6 @@ env/
 testing/
 .DS_Store
 __pycache__/
+
+# ignore cached .tle files
+fb_dashboard/widgets/data/*.tle

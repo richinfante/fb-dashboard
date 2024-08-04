@@ -2,7 +2,12 @@ boto3
 pillow
 requests
 pytz
+
+# finance libraries
 pandas
 matplotlib
 mplfinance
 yfinance
+
+# satellite libraries
+skyfield
