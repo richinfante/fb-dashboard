@@ -2,7 +2,7 @@
 
 ## Usage
 
-Copy `config.example.ini` -> `config.ini` and edit to your desired configuration.
+Copy `examples/example1.toml` -> `config.toml` and edit to your desired configuration.
 
 ```bash
 # install requirements
