@@ -33,7 +33,7 @@ widget = '{"metrics": [[ "AWS/CloudFront", "Requests", "Region", "Global", "Dist
 [![example 2](examples/example2.toml.png)](examples/example2.toml)
 
 ## Config Options By Type
-For usage examples, see `example.config.ini` in the repo.
+For usage examples, see the `examples/` folder for some starter templates.
 
 - all:
   - `x` - x position on screen
