@@ -1,4 +1,4 @@
-import configparser
+import toml
 import time
 import argparse
 import sys
@@ -14,20 +14,23 @@ from .widgets.satellite import SatelliteWidget
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
-    args.add_argument("--config", help="Path to the config file", default="config.ini")
+    args.add_argument("--config", help="Path to the config file", default="config.toml")
     args.add_argument("--fb", help="Name of the framebuffer device", default="fb0")
     args.add_argument(
+        "--export-filename",
+        help="Export the framebuffer to a PNG file",
+        default="framebuffer.png",
+    )
+    args.add_argument(
         "--no-framebuffer",
-        help="Run without a framebuffer, writing to png",
+        help="Run without a framebuffer, writing to png specified by --export-filename",
         action="store_true",
     )
     args.add_argument(
         "--exit", help="Exit after writing the framebuffer", action="store_true"
     )
     args = args.parse_args()
-
-    config = configparser.RawConfigParser()
-    config.read(args.config)  # load the config file
+    config = toml.load(args.config)
 
     plugins = {
         "Image": ImageWidget,
@@ -39,42 +42,31 @@ if __name__ == "__main__":
     }
 
     if args.no_framebuffer:
-        fb = FrameBufferBase(1080, 720)
+        fb = FrameBufferBase(1080, 720, export_filename=args.export_filename)
     else:
         fb = LinuxFrameBuffer(args.fb)  # create the framebuffer
 
     widgets = []
 
     # initialize widgets
-    for section in config.sections():
-        section_name = str(section)
-        if section_name.startswith("widget"):
-            kind = config[section]["type"]
-            x = int(
-                eval_expr(config[section]["x"], {"w": fb.fb_width, "h": fb.fb_height})
-            )
-            y = int(
-                eval_expr(config[section]["y"], {"w": fb.fb_width, "h": fb.fb_height})
-            )
-            width = int(
-                eval_expr(config[section]["w"], {"w": fb.fb_width, "h": fb.fb_height})
-            )
-            height = int(
-                eval_expr(config[section]["h"], {"w": fb.fb_width, "h": fb.fb_height})
-            )
+    for widget_name, config in (config.get("widgets") or {}).items():
+        # section_name = str(section)
+        kind = config["type"]
+        x = int(eval_expr(config["x"], {"w": fb.fb_width, "h": fb.fb_height}))
+        y = int(eval_expr(config["y"], {"w": fb.fb_width, "h": fb.fb_height}))
+        width = int(eval_expr(config["w"], {"w": fb.fb_width, "h": fb.fb_height}))
+        height = int(eval_expr(config["h"], {"w": fb.fb_width, "h": fb.fb_height}))
 
-            raw_config = {k: v for (k, v) in config[section].items()}
+        print(
+            f"Creating widget of type {kind} at ({x}, {y}) with size ({width}, {height})"
+        )
 
-            print(
-                f"Creating widget of type {kind} at ({x}, {y}) with size ({width}, {height})"
-            )
-
-            if kind in plugins:
-                widget = plugins[kind](x, y, width, height, raw_config)
-                widgets.append(widget)
-            else:
-                print(f"Unknown widget type: {kind}")
-                exit(1)
+        if kind in plugins:
+            widget = plugins[kind](x, y, width, height, config)
+            widgets.append(widget)
+        else:
+            print(f"Unknown widget type: {kind}")
+            exit(1)
 
     while True:
         # trigger a widget refresh

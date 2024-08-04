@@ -6,7 +6,7 @@ def eval_expr(expr, variables):
     Evaluate an expression with variables
     """
     return eval(
-        expr,
+        str(expr),
         {**variables, "false": False, "true": True, "dt": dt, "timedelta": timedelta},
     )
 

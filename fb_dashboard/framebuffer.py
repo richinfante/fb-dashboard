@@ -5,10 +5,13 @@ from PIL import Image
 
 
 class FrameBufferBase:
-    def __init__(self, width, height, bits_per_pixel=32):
+    def __init__(
+        self, width, height, bits_per_pixel=32, export_filename="framebuffer.png"
+    ):
         self.fb_width = width
         self.fb_height = height
         self.fb_bits_per_pixel = bits_per_pixel
+        self.export_filename = export_filename
 
         # setup a buffer to draw to
         self.make_buffer()
@@ -74,7 +77,8 @@ class FrameBufferBase:
 
         bulk write the virtual buffer to the framebuffer, so that the screen updates in one go
         """
-        self.export_png("framebuffer.png")
+        if self.export_filename:
+            self.export_png(self.export_filename)
 
 
 class LinuxFrameBuffer(FrameBufferBase):

@@ -18,15 +18,19 @@ python3 -m fb_dashboard
 ## Basic config with Cloudwatch Dashboards
 Config file, may need to customize the widget to the one you want to display. the `widget` is also eval()'ed like the x, y, w, and h variables, so you can dynamically specify the width and height of the image.
 
-```
-[widget]
+```toml
+[widgets.cloudwatch]
 x = 0
 y = 0
-w = w
-h = h
-type = CloudWatchMetricImage
-widget = {"metrics": [[ "AWS/CloudFront", "Requests", "Region", "Global", "DistributionId", "YOUR_DISTRIBUTION_ID_HERE" ]],"view": "timeSeries","stacked": false,"stat": "Sum","period": 900, "width": w, "height": h,"start": "-PT72H", "end": "P0D", "timezone": "-0400"}
+w = 'w'
+h = 'h'
+type = 'CloudWatchMetricImage'
+widget = '{"metrics": [[ "AWS/CloudFront", "Requests", "Region", "Global", "DistributionId", "YOUR_DISTRIBUTION_ID_HERE" ]],"view": "timeSeries","stacked": false,"stat": "Sum","period": 900, "width": w, "height": h,"start": "-PT72H", "end": "P0D", "timezone": "-0400"}'
 ```
+
+## Examples
+![example 1](examples/example1.toml.png)
+![example 2](examples/example2.toml.png)
 
 ## Config Options By Type
 For usage examples, see `example.config.ini` in the repo.

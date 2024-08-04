@@ -1,3 +1,4 @@
+toml
 boto3
 pillow
 requests

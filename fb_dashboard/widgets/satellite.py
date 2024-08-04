@@ -15,7 +15,6 @@ from hashlib import sha256
 import json
 
 
-
 class SatelliteWidget(WidgetBase):
 
     def latlon_to_xy(self, lat, lon):
@@ -35,11 +34,13 @@ class SatelliteWidget(WidgetBase):
         else:
             self.satellite_filter = []
 
-        self.bg_color = parse_color(config.get('bg_color', '#000000'))
-        self.map_color = parse_color(config.get('map_color', '#999999'))
-        self.track_color = parse_color(config.get('track_color', '#00b400'))
-        self.satellite_color = parse_color(config.get('satellite_color', '#00ff00'))
-        self.pin_radius = eval_expr(config.get('pin_radius', '2'), {'w': width, 'h': height})
+        self.bg_color = parse_color(config.get("bg_color", "#000000"))
+        self.map_color = parse_color(config.get("map_color", "#999999"))
+        self.track_color = parse_color(config.get("track_color", "#00b400"))
+        self.satellite_color = parse_color(config.get("satellite_color", "#00ff00"))
+        self.pin_radius = eval_expr(
+            config.get("pin_radius", "2"), {"w": width, "h": height}
+        )
 
         dirname = os.path.dirname(__file__)
         filename = os.path.join(dirname, "./data/world.geo.json")
@@ -138,7 +139,7 @@ class SatelliteWidget(WidgetBase):
 
             out_tracks = []
             cur_track = []
-            for (i, coord) in enumerate(hr_track):
+            for i, coord in enumerate(hr_track):
                 cur_track.append(coord)
 
                 if i == len(hr_track) - 1:
@@ -156,7 +157,15 @@ class SatelliteWidget(WidgetBase):
                     draw.line(track, fill=self.track_color)
 
             x, y = self.latlon_to_xy(lat.degrees, lon.degrees)
-            draw.ellipse((x - self.pin_radius, y - self.pin_radius, x + self.pin_radius, y + self.pin_radius), fill=self.satellite_color)
+            draw.ellipse(
+                (
+                    x - self.pin_radius,
+                    y - self.pin_radius,
+                    x + self.pin_radius,
+                    y + self.pin_radius,
+                ),
+                fill=self.satellite_color,
+            )
             # font = ImageFont.load_default(8)
             # draw.text((x, y), satellite.name, fill=(255, 255, 255), font=font)
 

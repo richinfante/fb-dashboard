@@ -1,0 +1,75 @@
+# Clock widget
+[widgets.clock]
+x = 0
+y = 0
+w = 'w / 2'
+h = 'h / 2'
+type = 'Clock'
+clock_format = '%I:%M %p'
+date_format = '%A, %B %d, %Y'
+bg_color = '#000000'
+fg_color = '#2196F3'
+timezone = 'America/New_York'
+
+[widgets.cloudwatch]
+# x, y, w, h are all python expressions that are evaluated using eval()
+x = 0
+y = 'h / 2'
+w = 'w / 2'
+h = 'h / 2'
+type = 'CloudWatchMetricImage'
+aws_profile = 'dashboard'
+aws_region = 'us-east-1'
+# widget also uses the same eval() so you can use the widget's width and height
+widget = '{"metrics": [[ "AWS/CloudFront", "Requests", "Region", "Global", "DistributionId", "YOUR_DISTRIBUTION_ID" ]],"view": "timeSeries","stacked": false,"stat": "Sum","period": 900, "width": w, "height": h,"start": "-PT72H", "end": "P0D", "timezone": "-0400"}'
+
+# GOES world image
+[widgets.stocks]
+x = 'w / 2'
+y = 'h / 2'
+w = 'w / 2'
+h = 'h / 2'
+type = 'StockMarketCandlestick'
+symbol = 'AAPL'
+time_period = '5d'
+interval = '1h'
+plot_style = 'nightclouds'
+refresh_interval = 600
+show_volume = true
+
+[widgets.cam1]
+x = 'w / 2'
+y = 0
+w = 'w / 4'
+h = 'h / 4'
+type = 'Image'
+path = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+# if you point to a camera, you may need to authenticate, here is an example of how to do that
+# this may need to be 'basic' or 'digest' depending on the camera
+# auth_type='digest'
+# username='username'
+# password='password'
+
+[widgets.cam2]
+x = 'w / 2 + w / 4'
+y = 0
+w = 'w / 4'
+h = 'h / 4'
+type = 'Image'
+path = 'https://images.unsplash.com/photo-1506260408121-e353d10b87c7?q=80&w=2128&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+
+[widgets.cam3]
+x = 'w / 2'
+y = 'h / 4'
+w = 'w / 4'
+h = 'h / 4'
+type = 'Image'
+path = 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+
+[widgets.cam5]
+x = 'w / 2 + w / 4'
+y = 'h / 4'
+w = 'w / 4'
+h = 'h / 4'
+type = 'Image'
+path = 'https://images.unsplash.com/photo-1419064642531-e575728395f2?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
