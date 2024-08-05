@@ -73,6 +73,13 @@ For usage examples, see the `examples/` folder for some starter templates.
   - `track_color` - (optional) rgb/hex color for tracks, default `#00bf00`
   - `satellite_color` - (optional) rgb/hex color for satellite marker pins, default `#00ff00`
   - `pin_radius` - (optional) integer size of pins. Is eval expression, can use `w` / `h` vars for computed widget size
+- `Metric` - a large metric that can pull from JSON APIs, and has a configurable subtitle label
+  - `url` - the url to load from.
+  - `bg_color` - bg color, in hex or `rgb()` format.
+  - `fg_color` - bg color, in hex or `rgb()` format.
+  - `label` - subtitle label
+  - `mode` - supported: `json`
+  - `json_path` - required - a dot notation keypath within the JSON loaded from to locate the number to display
 
 - `Text` (experimental)
   - `text` - text to display

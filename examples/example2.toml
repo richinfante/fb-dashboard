@@ -1,14 +1,3 @@
-[widgets.cloudwatch]
-x = '0'
-y = 'h / 2'
-w = 'w / 2'
-h = 'h / 2'
-type = 'CloudWatchMetricImage'
-invert = true
-aws_profile = 'dashboard'
-aws_region = 'us-east-1'
-widget = '{"metrics": [[ "AWS/CloudFront", "Requests", "Region", "Global", "DistributionId", "YOUR_DISTRIBUTION_ID" ]],"view": "timeSeries","stacked": false,"stat": "Sum","period": 900, "width": w, "height": h,"start": "-PT72H", "end": "P0D", "timezone": "-0400"}'
-
 [widgets.clock]
 x = '0'
 y = '0'
@@ -21,8 +10,9 @@ bg_color = '#000000'
 fg_color = '#2196F3'
 timezone = 'America/New_York'
 
-[widgets.goes_world]
-x = 'w / 2 '
+[widgets.satellite_map]
+swap_group = 'top_right'
+x = '0'
 y = 'h / 2'
 w = 'w / 2'
 h = 'h / 2'
@@ -33,6 +23,16 @@ track_color = '#00AA00'
 tle_url = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=stations&FORMAT=tle'
 satellite_filter = 'ISS (ZARYA)'
 
+[widgets.people_in_space]
+swap_group = 'top_right'
+x = 'w / 2 '
+y = 'h / 2'
+w = 'w / 2'
+h = 'h / 2'
+type = 'Metric'
+url = 'http://api.open-notify.org/astros.json'
+json_path = 'number'
+label = 'People in Space'
 
 [widgets.goes]
 x = 'w / 2 + (w / 2 - h / 2) / 2'
