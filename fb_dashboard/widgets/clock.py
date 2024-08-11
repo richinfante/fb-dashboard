@@ -6,6 +6,7 @@ import pytz
 from ..sfxbox import SimpleFlexBox
 from ..render_util import autodraw_text, draw_layout_boxes
 
+
 class ClockWidget(WidgetBase):
     def __init__(self, x, y, width, height, config):
         super().__init__(x, y, width, height, config)
@@ -48,24 +49,24 @@ class ClockWidget(WidgetBase):
             date_text = dt.now(tz).strftime(self.date_format)
 
         layout_box = SimpleFlexBox(
-            identifier='root',
-            flex_direction='column',
-            gap='5vh',
-            padding='10%',
+            identifier="root",
+            flex_direction="column",
+            gap="5vh",
+            padding="10%",
             children=[
-                SimpleFlexBox(identifier='top_spacer'),
-                SimpleFlexBox(identifier='clock', weight=2),
-                SimpleFlexBox(identifier='date', weight=0.75),
-                SimpleFlexBox(identifier='bottom_spacer'),
-            ]
+                SimpleFlexBox(identifier="top_spacer"),
+                SimpleFlexBox(identifier="clock", weight=2),
+                SimpleFlexBox(identifier="date", weight=0.75),
+                SimpleFlexBox(identifier="bottom_spacer"),
+            ],
         )
         layout = layout_box.compute_sizes(self.x, self.y, self.width, self.height)
 
         if self.debug:
             draw_layout_boxes(draw, layout, self.width, self.height)
 
-        autodraw_text(draw, text, layout['clock']['content_box'], anchor='mm')
-        autodraw_text(draw, date_text, layout['date']['content_box'], anchor='mm')
+        autodraw_text(draw, text, layout["clock"]["content_box"], anchor="mm")
+        autodraw_text(draw, date_text, layout["date"]["content_box"], anchor="mm")
 
         # # print(x, y, self.size)
         # draw.text(

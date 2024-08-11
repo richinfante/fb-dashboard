@@ -9,7 +9,7 @@ class WidgetBase:
         self.width = int(width)
         self.height = int(height)
 
-        if config.get('debug'):
+        if config.get("debug"):
             self.debug = True
         else:
             self.debug = False
