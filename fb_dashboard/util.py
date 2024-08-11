@@ -1,6 +1,23 @@
 from datetime import datetime as dt, timedelta
 
 
+def eval_padding(padding, box_size, root_size=None):
+    if isinstance(padding, int):
+        return padding
+    elif isinstance(padding, str):
+        if padding.endswith('vw'):
+            if not root_size:
+              raise ValueError("Root size not provided")
+            return int(root_size[0] * float(padding[:-2]) / 100)
+        elif padding.endswith('vh'):
+            if not root_size:
+              raise ValueError("Root size not provided")
+            return int(root_size[1] * float(padding[:-2]) / 100)
+        elif padding.endswith("%"):
+            return int(box_size * float(padding[:-1]) / 100)
+        elif padding.endswith("px"):
+            return int(padding[:-2])
+
 def eval_expr(expr, variables):
     """
     Evaluate an expression with variables

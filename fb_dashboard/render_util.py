@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont, ImageOps
-
+from .util import eval_padding
 def autosize_text_into_size (text, font, max_width, max_height):
     """
     Resizes the font size to fit the text into the given bounds
@@ -27,8 +27,11 @@ def autodraw_text(draw, text, box, max_font_size=None, **kwargs):
     """
     font = autosize_text_into_size(text, ImageFont.load_default(1), width, height)
 
-    if max_font_size and font.size > max_font_size:
-        font = ImageFont.load_default(max_font_size)
+
+    if max_font_size:
+        actual_max_size = eval_padding(max_font_size, height)
+        if font.size > actual_max_size:
+            font = ImageFont.load_default(actual_max_size)
 
     if kwargs.get('anchor'):
         anchor = kwargs.get('anchor')
@@ -59,13 +62,14 @@ def autodraw_text(draw, text, box, max_font_size=None, **kwargs):
     return font.size
 
 
-def draw_layout_boxes (draw, layout, width, height, box_color="black", content_box_color="red", text_color="black"):
+def draw_layout_boxes (draw, layout, width, height, box_color="gray", content_box_color="red", text_color="gray"):
   texts = {}
   for (box_id, box_sizes) in layout.items():
-      draw.rectangle((box_sizes['box'][0], box_sizes['box'][1], box_sizes['box'][0] + box_sizes['box'][2], box_sizes['box'][1] + box_sizes['box'][3]), outline=box_color)
-      draw.rectangle((box_sizes['content_box'][0], box_sizes['content_box'][1], box_sizes['content_box'][0] + box_sizes['content_box'][2], box_sizes['content_box'][1] + box_sizes['content_box'][3]), outline=content_box_color)
+      draw.rectangle((box_sizes['box'][0], box_sizes['box'][1], box_sizes['box'][0] + box_sizes['box'][2] - 1, box_sizes['box'][1] + box_sizes['box'][3] - 1), outline=box_color)
 
-      content_coord = (box_sizes["content_box"][0], box_sizes["content_box"][1])
+      draw.rectangle((box_sizes['content_box'][0], box_sizes['content_box'][1], box_sizes['content_box'][0] + box_sizes['content_box'][2] - 1, box_sizes['content_box'][1] + box_sizes['content_box'][3] - 1), outline=content_box_color)
+
+      content_coord = (box_sizes["content_box"][0] + 1, box_sizes["content_box"][1] + 1)
       if content_coord in texts:
           texts[content_coord] += ', ' + box_id
       else:
