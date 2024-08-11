@@ -12,6 +12,7 @@ from .widgets.clock import ClockWidget
 from .widgets.stock_candlestick import YFCandlestickWidget
 from .widgets.satellite import SatelliteWidget
 from .widgets.big_metric import BigMetricWidget
+from .widgets.weather import WeatherWidget
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
@@ -41,6 +42,7 @@ if __name__ == "__main__":
         "StockMarketCandlestick": YFCandlestickWidget,
         "CloudWatchMetricImage": CloudWatchImageWidget,
         "SatelliteMap": SatelliteWidget,
+        'Weather': WeatherWidget
     }
 
     if args.no_framebuffer:
