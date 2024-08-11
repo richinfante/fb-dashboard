@@ -4,21 +4,23 @@ from ..util import eval_expr, parse_color
 from datetime import datetime as dt
 import requests
 
+
 def get_keypath(obj, keypath):
     keys = keypath.split(".")
     for key in keys:
         obj = obj[key]
     return obj
 
+
 class BigMetricWidget(WidgetBase):
     def __init__(self, x, y, width, height, config):
         super().__init__(x, y, width, height, config)
-        self.url = config['url']
+        self.url = config["url"]
         self.bg_color = parse_color(config.get("bg_color", "#000000"))
         self.fg_color = parse_color(config.get("fg_color", "#16a34a"))
         self.label = config.get("label", "")
         self.mode = config.get("mode", "json")
-        self.json_path = config['json_path']
+        self.json_path = config["json_path"]
         self.refresh_interval = 60 * 5
 
     def find_font_size(self, test_text, height, width):

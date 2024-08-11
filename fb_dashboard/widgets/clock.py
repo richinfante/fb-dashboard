@@ -3,6 +3,8 @@ from .base import WidgetBase
 from ..util import eval_expr, parse_color
 from datetime import datetime as dt
 import pytz
+from ..sfxbox import SimpleFlexBox
+from ..render_util import autodraw_text, draw_layout_boxes
 
 
 class ClockWidget(WidgetBase):
@@ -46,21 +48,41 @@ class ClockWidget(WidgetBase):
             text = dt.now(tz).strftime(self.clock_format)
             date_text = dt.now(tz).strftime(self.date_format)
 
-        # print(x, y, self.size)
-        draw.text(
-            (self.width // 2, self.height // 2),
-            text,
-            fill=self.fg_color,
-            font=font,
-            anchor="mm",
+        layout_box = SimpleFlexBox(
+            identifier="root",
+            flex_direction="column",
+            gap="5vh",
+            padding="10%",
+            children=[
+                SimpleFlexBox(identifier="top_spacer"),
+                SimpleFlexBox(identifier="clock", weight=2),
+                SimpleFlexBox(identifier="date", weight=0.75),
+                SimpleFlexBox(identifier="bottom_spacer"),
+            ],
         )
-        draw.text(
-            (self.width // 2, self.height // 2 + self.size / 2 + 0.25 * self.size),
-            date_text,
-            fill=self.fg_color,
-            font=date_font,
-            anchor="mm",
-        )
+        layout = layout_box.compute_sizes(self.x, self.y, self.width, self.height)
+
+        if self.debug:
+            draw_layout_boxes(draw, layout, self.width, self.height)
+
+        autodraw_text(draw, text, layout["clock"]["content_box"], anchor="mm")
+        autodraw_text(draw, date_text, layout["date"]["content_box"], anchor="mm")
+
+        # # print(x, y, self.size)
+        # draw.text(
+        #     (self.width // 2, self.height // 2),
+        #     text,
+        #     fill=self.fg_color,
+        #     font=font,
+        #     anchor="mm",
+        # )
+        # draw.text(
+        #     (self.width // 2, self.height // 2 + self.size / 2 + 0.25 * self.size),
+        #     date_text,
+        #     fill=self.fg_color,
+        #     font=date_font,
+        #     anchor="mm",
+        # )
 
         img_resized = image.resize((self.width, self.height), Image.Resampling.LANCZOS)
         self.bytes = img_resized.tobytes("raw", "BGRA")

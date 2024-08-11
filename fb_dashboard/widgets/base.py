@@ -9,6 +9,11 @@ class WidgetBase:
         self.width = int(width)
         self.height = int(height)
 
+        if config.get("debug"):
+            self.debug = True
+        else:
+            self.debug = False
+
         if config.get("refresh_interval"):
             self.refresh_interval = int(config["refresh_interval"])
         else:
