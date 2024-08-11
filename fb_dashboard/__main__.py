@@ -18,6 +18,7 @@ if __name__ == "__main__":
     args = argparse.ArgumentParser()
     args.add_argument("--config", help="Path to the config file", default="config.toml")
     args.add_argument("--fb", help="Name of the framebuffer device", default="fb0")
+    args.add_argument('--debug', help='Enable debug mode', action='store_true')
     args.add_argument(
         "--export-filename",
         help="Export the framebuffer to a PNG file",
@@ -55,6 +56,9 @@ if __name__ == "__main__":
     # initialize widgets
     for widget_name, config in (config.get("widgets") or {}).items():
         # section_name = str(section)
+        if args.debug:
+            config['debug'] = True
+
         kind = config["type"]
         x = int(eval_expr(config["x"], {"w": fb.fb_width, "h": fb.fb_height}))
         y = int(eval_expr(config["y"], {"w": fb.fb_width, "h": fb.fb_height}))

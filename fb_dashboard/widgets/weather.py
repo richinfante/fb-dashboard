@@ -5,6 +5,7 @@ from datetime import datetime as dt
 import requests
 from io import BytesIO
 from ..sfxbox import SimpleFlexBox
+from ..render_util import autodraw_text, draw_layout_boxes, paste_image_into_bounds, rounded_image
 
 def get_keypath(obj, keypath):
     keys = keypath.split(".")
@@ -18,6 +19,7 @@ class WeatherWidget(WidgetBase):
         # self.url = config['url']
         self.bg_color = parse_color(config.get("bg_color", "#000000"))
         self.fg_color = parse_color(config.get("fg_color", "#ffffff"))
+        self.label_color = parse_color(config.get("label_color", "#aaaaaa"))
         # self.label = config.get("label", "")
         # self.mode = config.get("mode", "json")
         # self.json_path = config['json_path']
@@ -63,15 +65,17 @@ class WeatherWidget(WidgetBase):
                     identifier="top_row",
                     flex_direction="row",
                     weight=2,
+                    padding=('5vw', 0, '5vw', 0),
                     children=[
                         SimpleFlexBox(
                             identifier="icon_box",
-                            padding='5vw'
+                            padding=(0, '2vw', 0, '5vw'),
                         ),
                         SimpleFlexBox(
                             identifier="text_box",
-                            padding='5vw',
+                            padding=(0, '5vw', 0, '5vw'),
                             gap='5%',
+                            weight=2,
                             flex_direction='column',
                             children=[
                                 SimpleFlexBox(
@@ -98,10 +102,46 @@ class WeatherWidget(WidgetBase):
                             gap='5vw',
                             children=[
                                 SimpleFlexBox(
-                                    identifier='wind_speed'
+                                    identifier='wind_speed',
+                                    flex_direction='column',
+                                    gap='5%',
+                                    children=[
+                                        SimpleFlexBox(
+                                            identifier='wind_speed_value',
+                                            weight=3
+                                        ),
+                                        SimpleFlexBox(
+                                            identifier='wind_speed_label'
+                                        ),
+                                    ]
                                 ),
                                 SimpleFlexBox(
-                                    identifier='wind_direction'
+                                    identifier='wind_direction',
+                                    flex_direction='column',
+                                    gap='5%',
+                                    children=[
+                                        SimpleFlexBox(
+                                            identifier='wind_direction_value',
+                                            weight=3
+                                        ),
+                                        SimpleFlexBox(
+                                            identifier='wind_direction_label'
+                                        ),
+                                    ]
+                                ),
+                                SimpleFlexBox(
+                                    identifier='rain',
+                                    flex_direction='column',
+                                    gap='5%',
+                                    children=[
+                                        SimpleFlexBox(
+                                            identifier='rain_value',
+                                            weight=3
+                                        ),
+                                        SimpleFlexBox(
+                                            identifier='rain_label'
+                                        ),
+                                    ]
                                 ),
                             ]
                         )
@@ -116,15 +156,6 @@ class WeatherWidget(WidgetBase):
         draw = ImageDraw.Draw(image)
 
         self.fetch_data()
-        print(self.data)
-
-        # self.size = self.find_font_size(self.data, self.height, self.width)
-        sub_font = ImageFont.load_default(self.height // 16)
-        md_font = ImageFont.load_default(self.height // 8)
-        font = ImageFont.load_default(self.height // 4)
-        # date_font = ImageFont.load_default(0.25 * self.size)
-
-        # font_top = self.height - self.size - 0.25 * self.size - 0.25 * self.size
 
         # print(x, y, self.size)
         temperature = self.data['properties']['periods'][0]['temperature']
@@ -132,12 +163,40 @@ class WeatherWidget(WidgetBase):
         period_name = self.data['properties']['periods'][0]['name']
         short_forecast = self.data['properties']['periods'][0]['shortForecast']
         icon = self.data['properties']['periods'][0]['icon']
+
+        if self.debug:
+            draw_layout_boxes(draw, layout, self.width, self.height, box_color="gray", content_box_color="red", text_color="gray")
+
+        autodraw_text(draw, period_name, layout['period_name']['content_box'], fill=self.fg_color)
+        autodraw_text(draw, f"{temperature}°{temp_unit}", layout['temperature']['content_box'], fill=self.fg_color, anchor="lm")
+        autodraw_text(draw, short_forecast, layout['short_forecast']['content_box'], fill=self.fg_color)
+
+        font_size = autodraw_text(draw, "WIND BEARING", layout['wind_direction_label']['content_box'], fill=self.label_color)
+
+        autodraw_text(draw, "WIND SPEED", layout['wind_speed_label']['content_box'], fill=self.label_color, max_font_size=font_size)
+        autodraw_text(draw, "RAIN", layout['rain_label']['content_box'], fill=self.label_color, max_font_size=font_size)
+
+        wind_speed = self.data['properties']['periods'][0]['windSpeed']
+        wind_direction = self.data['properties']['periods'][0]['windDirection']
+        rain = self.data['properties']['periods'][0]['probabilityOfPrecipitation']['value'] or 0
+
+        autodraw_text(draw, wind_speed, layout['wind_speed_value']['content_box'], fill=self.fg_color, anchor="lm")
+        autodraw_text(draw, wind_direction, layout['wind_direction_value']['content_box'], fill=self.fg_color, anchor="lm")
+        autodraw_text(draw, f"{rain}%", layout['rain_value']['content_box'], fill=self.fg_color, anchor="lm")
+
         icon_data = requests.get(icon).content
         icon_image = Image.open(BytesIO(icon_data))
         icon_image = icon_image.convert("RGBA")
-        icon_image = icon_image.resize((self.height // 2, self.height // 2), Image.Resampling.LANCZOS)
+
+        # paste_image_into_bounds(image, icon_image_masked, layout['icon_box']['content_box'])
+        icon_data = requests.get(icon.replace('size=medium', 'size=large')).content
+        icon_image = Image.open(BytesIO(icon_data))
+        icon_image = icon_image.convert("RGBA")
+        icon_image = ImageOps.contain(icon_image, (layout['icon_box']['content_box'][2], layout['icon_box']['content_box'][3]), Image.LANCZOS)
+
         rounded_mask = Image.new("L", icon_image.size, 255)
         maskdraw = ImageDraw.Draw(rounded_mask)
+
         # rounded rect with 25% radius
         maskdraw.rounded_rectangle(
             (0, 0, icon_image.size[0], icon_image.size[1]),
@@ -160,84 +219,10 @@ class WeatherWidget(WidgetBase):
             width=4,
         )
 
-
         image.paste(icon_image, (
-            (self.width // 2 - icon_image.size[0]) // 2,
-            (self.height // 2 - icon_image.size[1]) // 2
+            layout['icon_box']['content_box'][0] + (layout['icon_box']['content_box'][2] - icon_image.size[0]) // 2,
+            layout['icon_box']['content_box'][1] + (layout['icon_box']['content_box'][3] - icon_image.size[1]) // 2
         ), mask=rounded_mask)
-
-        draw.text(
-            (self.width // 2, 5),
-            period_name,
-            fill=self.fg_color,
-            font=sub_font,
-            anchor="lt",
-        )
-        draw.text(
-            (self.width // 2, sub_font.size + 20),
-            f"{temperature}°{temp_unit}",
-            fill=self.fg_color,
-            font=font,
-            anchor="lt",
-        )
-        draw.text(
-            (self.width // 2, sub_font.size + 15 + font.size + 5),
-            short_forecast,
-            fill=self.fg_color,
-            font=sub_font,
-            anchor="lt",
-        )
-
-        wind_speed = self.data['properties']['periods'][0]['windSpeed']
-        wind_direction = self.data['properties']['periods'][0]['windDirection']
-
-        draw.text(
-            (self.width // 4, self.height * 0.75),
-            f"{wind_speed} {wind_direction}",
-            fill=self.fg_color,
-            font=md_font,
-            anchor="mm",
-        )
-        draw.text(
-            (self.width // 4, self.height * 0.75 + md_font.size + 5),
-            "WIND SPEED",
-            fill=self.fg_color,
-            font=sub_font,
-            anchor="mm",
-        )
-
-        # draw compass around the wind speed
-        # tick marks
-        for i in [0, 90, 180, 270]:
-            draw.line(
-                (
-                    self.width // 4 + 0.5 * md_font.size * (1 + 0.5 * i // 90),
-                    self.height * 0.75 + 0.5 * md_font.size * (1 + 0.5 * i // 90),
-                    self.width // 4 + 0.5 * md_font.size * (1 + 0.5 * i // 90) + 0.25 * md_font.size * (1 + 0.5 * i // 90),
-                    self.height * 0.75 + 0.5 * md_font.size * (1 + 0.5 * i // 90) + 0.25 * md_font.size * (1 + 0.5 * i // 90),
-                ),
-                fill=self.fg_color,
-                width=2,
-            )
-
-        rain = self.data['properties']['periods'][0]['probabilityOfPrecipitation']['value'] or 0
-        draw.text(
-            (3 * self.width // 4, self.height * 0.75),
-            f"{rain}%",
-            fill='#2196f3',
-            font=md_font,
-            anchor="mm",
-        )
-
-        draw.text(
-            (3 * self.width // 4, self.height * 0.75 + md_font.size + 5),
-            "CHANCE OF RAIN",
-            fill='#2196f3',
-            font=sub_font,
-            anchor="mm",
-        )
-
-
 
         img_resized = image.resize((self.width, self.height), Image.Resampling.LANCZOS)
         self.bytes = img_resized.tobytes("raw", "BGRA")

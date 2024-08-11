@@ -12,6 +12,8 @@ class SimpleFlexBox:
       An exceptionally simple flex box implementation, with no support for wrapping or alignment. All items are stretched to fill the available space, and the flex direction is either row or column.
 
       Each item is given a weight, which determines how much space it should take up relative to the other items. The weight is a positive float, and the total weight of all items in the flex box should be the same.
+
+      - padding: a tuple of 4 values, representing the padding in the order of top, right, bottom, left. Each value can be an integer, a percentage string, or a vw/vh string.
     """
     self.identifier = identifier
     self.flex_direction = flex_direction
