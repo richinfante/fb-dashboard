@@ -80,6 +80,9 @@ For usage examples, see the `examples/` folder for some starter templates.
   - `label` - subtitle label
   - `mode` - supported: `json`
   - `json_path` - required - a dot notation keypath within the JSON loaded from to locate the number to display
+- `Weather` - a weather widget, currently integrated with the National Weather Service API
+  - `latitude` - a latitude for a location in the USA
+  - `longitude` - a longitude for a location in the usa
 
 - `Text` (experimental)
   - `text` - text to display
