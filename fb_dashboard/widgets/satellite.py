@@ -39,11 +39,18 @@ class SatelliteWidget(WidgetBase):
         self.map_fill_color = parse_color(config.get("map_fill_color", "#171717"))
         self.map_stroke_width = eval_expr(config.get("map_stroke_width", "2"), {"w": width, "h": height})
         self.track_color = parse_color(config.get("track_color", "#16a34a"))
-        self.track_width = eval_expr(config.get("track_width", "2"), {"w": width, "h": height})
+        self.track_width = eval_expr(config.get("track_width", "int(0.0025 * w)"), {"w": width, "h": height})
         self.satellite_color = parse_color(config.get("satellite_color", "#4ade80"))
         self.pin_radius = eval_expr(
-            config.get("pin_radius", "4"), {"w": width, "h": height}
+            config.get("pin_radius", "int(0.005 * w)"), {"w": width, "h": height}
         )
+        self.render_labels = eval_expr(config.get("render_labels", "true"), {"w": width, "h": height})
+        self.label_color = parse_color(config.get("label_color", "#ffffff"))
+        self.label_bg_color = parse_color(config.get("label_bg_color", "#000000"))
+        self.label_font_size = eval_expr(
+            config.get("label_font_size", "0.015 * w"), {"w": width, "h": height}
+        )
+
 
         dirname = os.path.dirname(__file__)
         filename = os.path.join(dirname, "./data/world.geo.json")
@@ -114,6 +121,8 @@ class SatelliteWidget(WidgetBase):
 
         print("Loaded", len(self.satellites), "satellites")
 
+        labels = []
+
         for satellite in self.satellites:
             if self.satellite_filter and satellite.name not in self.satellite_filter:
                 continue
@@ -160,6 +169,9 @@ class SatelliteWidget(WidgetBase):
                     draw.line(track, fill=self.track_color, width=self.track_width)
 
             x, y = self.latlon_to_xy(lat.degrees, lon.degrees)
+            labels.append((x, y, satellite))
+
+        for (x, y, satellite) in labels:
             draw.ellipse(
                 (
                     x - self.pin_radius,
@@ -169,8 +181,15 @@ class SatelliteWidget(WidgetBase):
                 ),
                 fill=self.satellite_color,
             )
-            # font = ImageFont.load_default(8)
-            # draw.text((x, y), satellite.name, fill=(255, 255, 255), font=font)
+
+        # render labels after all satellites have been drawn
+        if self.label_font_size and self.render_labels:
+            for (x, y, satellite) in labels:
+                font = ImageFont.load_default(self.label_font_size)
+                label_coord = (x + int(self.pin_radius * 1.5), y + int(self.pin_radius * 1.5))
+                bbox = draw.textbbox(label_coord, satellite.name, font=font, anchor='lt')
+                draw.rectangle(bbox, fill=self.label_bg_color)
+                draw.text(label_coord, satellite.name, fill=self.label_color, font=font, anchor='lt')
 
         # ensure the image has an alpha channel
         if not new_image.has_transparency_data:

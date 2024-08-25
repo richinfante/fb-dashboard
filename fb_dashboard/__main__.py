@@ -19,6 +19,7 @@ if __name__ == "__main__":
     args.add_argument("--config", help="Path to the config file", default="config.toml")
     args.add_argument("--fb", help="Name of the framebuffer device", default="fb0")
     args.add_argument("--debug", help="Enable debug mode", action="store_true")
+    args.add_argument("--fake-fb-size", help="When using --no-framebuffer, set the size of the fake framebuffer", default="2160x1440")
     args.add_argument(
         "--export-filename",
         help="Export the framebuffer to a PNG file",
@@ -47,12 +48,16 @@ if __name__ == "__main__":
     }
 
     if args.no_framebuffer:
-        fb = FrameBufferBase(1080, 720, export_filename=args.export_filename)
+        if args.fake_fb_size:
+            (width, height) = [int(x) for x in args.fake_fb_size.split("x")]
+        else:
+            (width, height) = (2160, 1440)
+
+        fb = FrameBufferBase(width, height, export_filename=args.export_filename)
     else:
         fb = LinuxFrameBuffer(args.fb)  # create the framebuffer
 
     widgets = []
-
     # initialize widgets
     for widget_name, config in (config.get("widgets") or {}).items():
         # section_name = str(section)
