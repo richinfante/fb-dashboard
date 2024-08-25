@@ -69,10 +69,13 @@ For usage examples, see the `examples/` folder for some starter templates.
     - allowed values: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo
 - `SatelliteMap` - satellite tracks via Celestrak
   - `bg_color` - (optional) rgb/hex color, default `#000000`
-  - `map_color` - (optional) rgb/hex color for map outline, default `#999999`
-  - `track_color` - (optional) rgb/hex color for tracks, default `#00bf00`
+  - `map_color` - (optional) rgb/hex color for map outline, default `#404040`
+  - `map_fill_color` - (optional) rgb/hex color for map fill, default `#171717`
+  - `map_stroke_width` - (optional) integer stroke width in pixels, default 2
+  - `track_color` - (optional) rgb/hex color for tracks, default `#00bf00`, default `2`
+  - `track_width` - (optional) integer track width, in pixels
   - `satellite_color` - (optional) rgb/hex color for satellite marker pins, default `#00ff00`
-  - `pin_radius` - (optional) integer size of pins. Is eval expression, can use `w` / `h` vars for computed widget size
+  - `pin_radius` - (optional) integer size of pins. Is eval expression, can use `w` / `h` vars for computed widget size. Default `4`
 - `Metric` - a large metric that can pull from JSON APIs, and has a configurable subtitle label
   - `url` - the url to load from.
   - `bg_color` - bg color, in hex or `rgb()` format.
@@ -80,6 +83,9 @@ For usage examples, see the `examples/` folder for some starter templates.
   - `label` - subtitle label
   - `mode` - supported: `json`
   - `json_path` - required - a dot notation keypath within the JSON loaded from to locate the number to display
+- `Weather` - a weather widget, currently integrated with the National Weather Service API
+  - `latitude` - a latitude for a location in the USA
+  - `longitude` - a longitude for a location in the usa
 
 - `Text` (experimental)
   - `text` - text to display

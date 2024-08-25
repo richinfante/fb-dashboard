@@ -35,11 +35,14 @@ class SatelliteWidget(WidgetBase):
             self.satellite_filter = []
 
         self.bg_color = parse_color(config.get("bg_color", "#000000"))
-        self.map_color = parse_color(config.get("map_color", "#999999"))
-        self.track_color = parse_color(config.get("track_color", "#00b400"))
-        self.satellite_color = parse_color(config.get("satellite_color", "#00ff00"))
+        self.map_color = parse_color(config.get("map_color", "#404040"))
+        self.map_fill_color = parse_color(config.get("map_fill_color", "#171717"))
+        self.map_stroke_width = eval_expr(config.get("map_stroke_width", "2"), {"w": width, "h": height})
+        self.track_color = parse_color(config.get("track_color", "#16a34a"))
+        self.track_width = eval_expr(config.get("track_width", "2"), {"w": width, "h": height})
+        self.satellite_color = parse_color(config.get("satellite_color", "#4ade80"))
         self.pin_radius = eval_expr(
-            config.get("pin_radius", "2"), {"w": width, "h": height}
+            config.get("pin_radius", "4"), {"w": width, "h": height}
         )
 
         dirname = os.path.dirname(__file__)
@@ -65,7 +68,7 @@ class SatelliteWidget(WidgetBase):
                     for coord in feat:
                         to_draw.append(self.latlon_to_xy(coord[1], coord[0]))
 
-                    draw.polygon(to_draw, outline=self.map_color)
+                    draw.polygon(to_draw, outline=self.map_color, fill=self.map_fill_color, width=self.map_stroke_width)
             elif feature["geometry"]["type"] == "MultiPolygon":
                 for feat in coords:
                     to_draw = []
@@ -73,7 +76,7 @@ class SatelliteWidget(WidgetBase):
                         for c in coord:
                             to_draw.append(self.latlon_to_xy(c[1], c[0]))
 
-                    draw.polygon(to_draw, outline=self.map_color)
+                    draw.polygon(to_draw, outline=self.map_color, fill=self.map_fill_color, width=self.map_stroke_width)
 
     def refresh(self):
         if not self.last_tle_refresh or dt.now() - self.last_tle_refresh > timedelta(
@@ -154,7 +157,7 @@ class SatelliteWidget(WidgetBase):
 
             for track in out_tracks:
                 if len(track) > 1:
-                    draw.line(track, fill=self.track_color)
+                    draw.line(track, fill=self.track_color, width=self.track_width)
 
             x, y = self.latlon_to_xy(lat.degrees, lon.degrees)
             draw.ellipse(
