@@ -37,12 +37,12 @@ class SatelliteWidget(WidgetBase):
         self.bg_color = parse_color(config.get("bg_color", "#000000"))
         self.map_color = parse_color(config.get("map_color", "#404040"))
         self.map_fill_color = parse_color(config.get("map_fill_color", "#171717"))
-        self.map_stroke_width = eval_expr(config.get("map_stroke_width", "2"), {"w": width, "h": height})
+        self.map_stroke_width = eval_expr(config.get("map_stroke_width", "max(int(0.0025 * w), 1)"), {"w": width, "h": height})
         self.track_color = parse_color(config.get("track_color", "#16a34a"))
-        self.track_width = eval_expr(config.get("track_width", "int(0.0025 * w)"), {"w": width, "h": height})
+        self.track_width = eval_expr(config.get("track_width", "max(int(0.0025 * w), 1)"), {"w": width, "h": height})
         self.satellite_color = parse_color(config.get("satellite_color", "#4ade80"))
         self.pin_radius = eval_expr(
-            config.get("pin_radius", "int(0.005 * w)"), {"w": width, "h": height}
+            config.get("pin_radius", "max(int(0.005 * w), 1)"), {"w": width, "h": height}
         )
         self.render_labels = eval_expr(config.get("render_labels", "true"), {"w": width, "h": height})
         self.label_color = parse_color(config.get("label_color", "#ffffff"))
